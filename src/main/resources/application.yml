@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: testAi-demo
+  ai:
+    openai:
+      api-key: sk-GVe4U5y3VMDhl0QDtI6ByKTqtSvw4heqDw1h5wSuEdXwfFpd
+      chat:
+        options:
+          model: gpt-5.4
+      base-url: https://aicloudroute.com
+server:
+  port: 8073
