@@ -1,5 +1,6 @@
 package com.testai.testaidemo.config;
 
+import com.alibaba.cloud.ai.graph.CompiledGraph;
 import com.alibaba.cloud.ai.graph.KeyStrategy;
 import com.alibaba.cloud.ai.graph.KeyStrategyFactory;
 import com.alibaba.cloud.ai.graph.StateGraph;
@@ -24,14 +25,8 @@ import java.util.Map;
 @Configuration
 public class TestGraphConfig {
 
-    private final ChatClient chatClient;
-
-    public TestGraphConfig(ChatClient chatClient) {
-        this.chatClient = chatClient;
-    }
-
     @Bean
-    public void testGraph(){
+    public CompiledGraph testGraph(ChatClient.Builder chatClientBuilder){
         KeyStrategyFactory keyStrategyFactory= () -> {
             Map<String, KeyStrategy> map = new HashMap<>();
             map.put("msg", new ReplaceStrategy());
@@ -42,13 +37,18 @@ public class TestGraphConfig {
         StateGraph stateGraph = new StateGraph("testGraph", keyStrategyFactory);
         // 添加节点
         try {
-            stateGraph.addNode("genSentence", AsyncNodeAction.node_async(new GenSentenceNode(chatClient)));
-            stateGraph.addNode("transferEnglish", AsyncNodeAction.node_async(new TransferEnglishNode(chatClient)));
+            stateGraph.addNode("genSentence", AsyncNodeAction.node_async(new GenSentenceNode(chatClientBuilder.build())));
+            stateGraph.addNode("transferEnglish", AsyncNodeAction.node_async(new TransferEnglishNode(chatClientBuilder.build())));
+            //添加边
+            stateGraph.addEdge(StateGraph.START, "genSentence");
+            stateGraph.addEdge("genSentence", "transferEnglish");
+            stateGraph.addEdge("transferEnglish", StateGraph.END);
+            return stateGraph.compile();
         } catch (GraphStateException e) {
+            System.out.println(e);
             throw new RuntimeException(e);
         }
 
-        //添加边
-        stateGraph.addEdge("genSentence", "transferEnglish");
+
     }
 }

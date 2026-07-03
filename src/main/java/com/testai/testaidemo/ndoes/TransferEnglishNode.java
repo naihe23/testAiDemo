@@ -25,11 +25,11 @@ public class TransferEnglishNode implements NodeAction {
     @Override
     public Map<String, Object> apply(OverAllState state) throws Exception {
         String sentence= state.value("sentence", "");
-         Flux<String> content = chatClient.prompt().user(t->t.text("根据输入的句子:{msg}" +
+         Flux<String> content = chatClient.prompt().user(t->t.text("根据输入的句子:{sentence}" +
                 "翻译成英文").param("sentence", sentence)).stream().content();
          StringBuilder sb = new StringBuilder();
          //阻塞在这里，收集LLm流式输出的内容放到sb中
-         content.doOnNext(sb::append).blockFirst();
+         content.doOnNext(sb::append).blockLast();
         return Collections.singletonMap("english", sb.toString());
     }
 }

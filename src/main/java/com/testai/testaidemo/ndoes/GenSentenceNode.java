@@ -29,7 +29,7 @@ public class GenSentenceNode implements NodeAction {
                 "生成一个句子").param("msg", msg)).stream().content();
          StringBuilder sb = new StringBuilder();
          //阻塞在这里，收集LLm流式输出的内容放到sb中
-         content.doOnNext(sb::append).blockFirst();
+         content.doOnNext(sb::append).blockLast();
         return Collections.singletonMap("sentence", sb.toString());
     }
 }
